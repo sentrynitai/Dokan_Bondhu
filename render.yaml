@@ -16,6 +16,8 @@ services:
         value: 1440
       - key: ALLOW_ALL_ORIGINS
         value: "true"
+      - key: DATABASE_URL
+        sync: false
 
   # React Frontend (Static Site)
   - type: web
@@ -28,3 +30,6 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false
