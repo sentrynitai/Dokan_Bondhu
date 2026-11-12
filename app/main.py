@@ -51,9 +51,16 @@ allowed_origins = [
     "http://127.0.0.1:8000",
 ]
 
+cors_env = os.getenv("CORS_ORIGINS", "")
+if cors_env:
+    for origin in cors_env.split(","):
+        origin = origin.strip()
+        if origin and origin not in allowed_origins:
+            allowed_origins.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=allowed_origins if not os.getenv("ALLOW_ALL_ORIGINS") else ["*"],
     allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:[0-9]+)?",
     allow_credentials=True,
     allow_methods=["*"],

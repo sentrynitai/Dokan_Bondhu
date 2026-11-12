@@ -8,30 +8,37 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 
 load_dotenv()
 
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_NAME = os.getenv("DB_NAME", "dokan_bandhu")
+raw_db_url = os.getenv("DATABASE_URL")
+if raw_db_url:
+    if raw_db_url.startswith("mysql://"):
+        DATABASE_URL = raw_db_url.replace("mysql://", "mysql+pymysql://", 1)
+    else:
+        DATABASE_URL = raw_db_url
+else:
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_NAME = os.getenv("DB_NAME", "dokan_bandhu")
 
-raw_port = os.getenv("DB_PORT", "3306")
-try:
-    DB_PORT = int(raw_port) if raw_port else 3306
-except ValueError:
-    DB_PORT = 3306
+    raw_port = os.getenv("DB_PORT", "3306")
+    try:
+        DB_PORT = int(raw_port) if raw_port else 3306
+    except ValueError:
+        DB_PORT = 3306
 
-if not DB_USER or not DB_NAME:
-    raise RuntimeError("DB_USER and DB_NAME must be configured in .env")
+    if not DB_USER or not DB_NAME:
+        raise RuntimeError("DB_USER and DB_NAME must be configured in .env (or provide DATABASE_URL)")
 
-# Database connection URL
-DATABASE_URL = URL.create(
-    drivername="mysql+pymysql",
-    username=DB_USER,
-    password=DB_PASSWORD,
-    host=DB_HOST,
-    port=DB_PORT,
-    database=DB_NAME,
-    query={"charset": "utf8mb4"}
-)
+    # Database connection URL
+    DATABASE_URL = URL.create(
+        drivername="mysql+pymysql",
+        username=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT,
+        database=DB_NAME,
+        query={"charset": "utf8mb4"}
+    )
 
 # Create database engine
 engine = create_engine(
